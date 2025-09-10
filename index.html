@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PART LIFECYCLE RECORD PAGE (PLRP) — Final</title>
+<style>
+  :root{
+    --bg:#f6f4ff;
+    --card:#ffffff;
+    --muted:#6b6b7a;
+    --text:#0f1226;
+    --accent:#5b21b6;
+    --accent-2:#7c3aed;
+    --good:#10b981;
+    --warn:#f59e0b;
+    --danger:#ef4444;
+    --glass: rgba(124,58,237,0.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,Helvetica;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1200px;margin:22px auto;padding:18px}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  header h1{margin:0;font-size:22px;color:var(--accent);letter-spacing:0.4px}
+  .sub{color:var(--muted);font-size:13px}
+
+  .grid{display:grid;grid-template-columns:320px 1fr 340px;gap:16px}
+  .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 10px 40px rgba(7,6,22,0.06)}
+  .label{font-size:12px;color:var(--muted)}
+  .big{font-weight:700;font-size:16px}
+  .pill{display:inline-block;padding:6px 8px;border-radius:999px;background:var(--glass);font-size:12px;color:var(--accent)}
+  .small{font-size:13px;color:var(--muted)}
+
+  /* LEFT summary specialized layout */
+  .summary {display:flex;gap:12px;align-items:flex-start;}
+  .summary-left{flex:1;padding-right:6px;}
+  .vendor-name{font-weight:900;font-size:20px;line-height:1.05;color:#0b0b10;margin-bottom:8px;}
+  .meta-row-right{width:120px;text-align:right;}
+  .supply-date{font-size:20px;font-weight:800;color:#1f1f2b;}
+  .heat {margin-top:8px;font-size:13px;color:var(--muted);}
+
+  .block-row{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px}
+  .block-left{flex:1}
+  .material-name{font-weight:800;font-size:15px;color:#121214}
+  .warranty-box{width:150px;text-align:right}
+  .warranty-num{font-weight:800;font-size:18px;color:#111}
+  .warranty-days{font-size:13px;color:var(--good);font-weight:700}
+
+  details{margin-top:10px;color:var(--muted)}
+  .history-item{padding:12px 0;border-bottom:1px solid #f0eef8;display:flex;justify-content:space-between;align-items:center}
+  .history-item:last-child{border-bottom:none}
+  .status-pass{color:var(--good);font-weight:800}
+  .status-minor{color:var(--warn);font-weight:800}
+  .status-fail{color:var(--danger);font-weight:800}
+
+  .section-title{font-weight:700;margin-bottom:8px;color:#23232b}
+
+  .btn{display:inline-block;padding:8px 12px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none;font-size:13px;cursor:pointer;border:none}
+  .btn.ghost{background:#fff;color:var(--accent);border:1px solid rgba(124,58,237,0.12)}
+  .btn.small{padding:6px 10px;font-size:13px;border-radius:9px}
+
+  .chart-wrap{height:150px}
+  .mini{height:110px}
+
+  /* KPI tiles arranged as 2x2 grid */
+  .kpi-grid-2x2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px;}
+  .kpi-tile{padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbf8ff);border:1px solid rgba(124,58,237,0.06);}
+  .kpi-large{font-weight:800;font-size:22px;color:#111;margin-top:6px}
+  #k_avail { color: #111 !important; } /* ensure availability is black */
+
+  /* Right-side smaller form controls */
+  .form-input, .form-select, .form-textarea {
+    width:100%;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid #ece6ff;
+    background:linear-gradient(180deg,#fff,#fcf8ff);
+    font-size:13px;
+    color:#111;
+    outline:none;
+    box-shadow:none;
+  }
+  .form-select { padding-right:28px; }
+  .form-textarea { min-height:70px; font-size:13px; }
+
+  .main-action {
+    padding:10px 18px;
+    font-size:14px;
+    border-radius:10px;
+    font-weight:700;
+    background:linear-gradient(180deg,var(--accent),var(--accent-2));
+    color:#fff;
+    border:none;
+    cursor:pointer;
+  }
+  .secondary-link {
+    font-size:12px;
+    color:var(--accent);
+    background:transparent;
+    border:none;
+    cursor:pointer;
+  }
+
+  /* small screens */
+  @media (max-width:980px){.grid{grid-template-columns:1fr;}.wrap{padding:12px}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>PART LIFECYCLE RECORD PAGE (PLRP)</h1>
+        <div class="sub">Part &gt; <span id="partId">VX-67890-00RS-v1-6F</span> — <span id="partType">Rail Clip - Type A1</span></div>
+      </div>
+      <div class="flex">
+        <button class="btn ghost" id="backBtn">⬅ Back</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT summary -->
+      <div>
+        <div class="card">
+          <div class="summary">
+            <div class="summary-left">
+              <div class="label">Vendor</div>
+              <div class="vendor-name" id="vendor">Bharat Rail Components Pvt. Ltd.</div>
+              <div class="small" style="margin-top:6px">Lot: <strong id="lot">LOT67890</strong></div>
+            </div>
+
+            <div class="meta-row-right">
+              <div class="label">Manufacture / Supply</div>
+              <div class="supply-date" id="supplyDate">2024-08-29</div>
+              <div class="heat" id="heatStamp">Heat stamp: <strong>HS-3321</strong></div>
+            </div>
+          </div>
+
+          <div class="block-row">
+            <div class="block-left">
+              <div class="label">Material</div>
+              <div class="material-name" id="material">C-Mn Steel</div>
+              <div class="small">Grade: <strong id="materialGrade">IS2062-2011</strong></div>
+            </div>
+
+            <div class="warranty-box">
+              <div class="label">Warranty</div>
+              <div class="warranty-num" id="warrantyText">24 months</div>
+              <div id="warrantyLeft" class="warranty-days">151 days left</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="label">Location</div>
+            <div style="font-weight:700;color:#1f2937" id="location">Chennai Division - Siding 7</div>
+            <div class="small" style="margin-top:8px">Last sync: <strong id="lastSync">2025-09-14 18:10</strong></div>
+            <div class="small">Next inspection: <strong id="nextInspection">2026-03-01</strong></div>
+          </div>
+
+          <details>
+            <summary>RDSO / Inspection Approval info</summary>
+            <div style="margin-top:8px" class="small">RDSO Approval: <strong id="rdsNo">RDSO-APP-2024-112</strong> — Date: <strong id="rdsDate">2025-07-20</strong></div>
+          </details>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="section-title">Inspection history</div>
+          <div class="small">Latest inspection & maintenance records (most recent first)</div>
+          <div id="historyList" style="margin-top:12px"></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="section-title">Vendor Performance</div>
+          <div class="small">Score breakdown (Responsiveness / Cost / Durability / Warranty & claims)</div>
+          <div class="chart-wrap" style="margin-top:10px">
+            <svg id="vendorPerf" width="100%" height="160" viewBox="0 0 360 160" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: KPI & charts -->
+      <div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="section-title">Key Performance Indicators</div>
+              <div class="small">AI & Fleet KPIs</div>
+            </div>
+            <div class="small">Model confidence: <strong id="modelConf">9.4/10</strong></div>
+          </div>
+
+          <!-- 2x2 KPI grid -->
+          <div class="kpi-grid-2x2">
+            <div class="kpi-tile">
+              <div class="small">Availability (12m)</div>
+              <div id="k_avail" class="kpi-large">99.4%</div>
+              <div class="small" style="margin-top:8px;color:var(--muted)">Based on uptime/downtime demo calc</div>
+            </div>
+
+            <div class="kpi-tile">
+              <div class="small">Failure rate / year</div>
+              <div id="k_fail" class="kpi-large">0.6%</div>
+              <div class="small" style="margin-top:8px;color:var(--muted)">Percent of units failing per year</div>
+            </div>
+
+            <div class="kpi-tile">
+              <div class="small">Avg inspection delay</div>
+              <div id="k_delay" class="kpi-large">3 days</div>
+              <div class="small" style="margin-top:8px;color:var(--muted)">Avg days late vs schedule</div>
+            </div>
+
+            <div class="kpi-tile">
+              <div class="small">AI anomaly score</div>
+              <div id="k_ai" class="kpi-large">0.2/10</div>
+              <div class="small" style="margin-top:8px;color:var(--muted)">Higher → more anomalies</div>
+            </div>
+          </div>
+
+          <hr style="margin:12px 0;border:none;border-top:1px solid #f0eef8">
+
+          <div style="display:flex;gap:12px">
+            <div style="flex:1">
+              <div class="small">Failures vs Inspections (monthly)</div>
+              <div class="mini">
+                <svg id="trend" width="100%" height="110" viewBox="0 0 520 110" preserveAspectRatio="xMidYMid meet"></svg>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-top:6px">Legend: <span style="color:#ef4444">Failures</span> — <span style="color:#6d28d9">Inspections</span></div>
+            </div>
+
+            <div style="width:240px">
+              <div class="small">Frequent failure types (percent)</div>
+              <div class="mini" style="margin-top:6px">
+                <svg id="vendorBars" width="240" height="110" viewBox="0 0 240 110" preserveAspectRatio="xMidYMid meet"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Analysis: REPLACED per request (keeps gauge element but we will not show numeric confidence) -->
+        <div class="card" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="section-title">AI Analyst — quick summary</div>
+              <div class="small">Automated insights from sensors & inspection history</div>
+            </div>
+            <div class="small" style="font-weight:700">RUL estimate: 8.6 yrs</div>
+          </div>
+
+          <ul style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.5">
+            <li>Small anomaly detected on micro-oxide pattern — confidence medium.</li>
+            <li>Recommend re-application of sealant within 90 days if moisture rises.</li>
+            <li>Corrosion risk: Low · Mechanical wear: Moderate</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- RIGHT: inspection form & quick actions -->
+      <div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div class="section-title">Add Review / Inspection</div></div>
+            <!-- intentionally removed "Last: ..." per request -->
+          </div>
+
+          <div style="margin-top:8px">
+            <label class="label">Inspector name</label>
+            <input id="inspectorName" class="form-input" placeholder="Your name" />
+
+            <label class="label" style="margin-top:8px">Status</label>
+            <select id="inspectorStatus" class="form-select"><option>Pass</option><option>Minor</option><option>Fail</option></select>
+
+            <label class="label" style="margin-top:8px">Failure type (if any)</label>
+            <select id="failureType" class="form-select"><option value="">-- none --</option><option>Weld fracture</option><option>Corrosion</option><option>Abrasion</option><option>Plastic deformation</option><option>Loosening</option></select>
+
+            <label class="label" style="margin-top:8px">Notes</label>
+            <textarea id="inspectorNotes" class="form-textarea" placeholder="Observations..."></textarea>
+
+            <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+              <button id="saveInspect" class="main-action">Update Inspection</button>
+              <button id="previewInspect" class="secondary-link">Preview</button>
+              <button id="detailsBtn" class="secondary-link">Detailed information</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="section-title">Quick actions</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <button class="btn small" id="flagWarrantyBtn">Flag for Warranty Claim</button>
+            <button class="btn small" id="downloadBtn">Download Traceability Report</button>
+            <button class="btn small ghost" id="markReplacedBtn">Mark as Replaced</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer style="margin-top:18px">Demo PLRP — offline single file. Data persists locally in browser for demonstration.</footer>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;align-items:center;justify-content:center;background:rgba(10,8,22,0.45);z-index:100">
+    <div style="width:720px;background:#fff;padding:18px;border-radius:12px;margin:auto">
+      <h3>Detailed Information</h3>
+      <div id="detailedContent" style="margin-top:12px;font-size:14px;color:var(--muted)"></div>
+      <div style="margin-top:14px;text-align:right"><button class="btn ghost" id="closeModal">Close</button></div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Data (static) ---------- */
+const baseKey = 'plrp_static_final_v1';
+const defaultState = {
+  meta: {
+    partId: 'VX-67890-00RS-v1-6F',
+    partType: 'Rail Clip - Type A1',
+    lot: 'LOT67890',
+    vendor: 'Bharat Rail Components Pvt. Ltd.',
+    vendorPrefix: 'BR',
+    supplyDate: '2024-08-29',
+    heatStamp: 'HS-3321',
+    material: 'C-Mn Steel',
+    materialGrade: 'IS2062-2011',
+    warrantyMonths: 24,
+    location: 'Chennai Division - Siding 7',
+    lastSync: '2025-09-14 18:10',
+    nextInspection: '2026-03-01'
+  },
+  history: [
+    {date:'2025-09-01', type:'Inspection', actor:'S. Kumar', notes:'Good condition', failureType:'', status:'Pass'},
+    {date:'2025-03-02', type:'Inspection', actor:'R. Iyer', notes:'Minor surface oxidation, sealed', failureType:'', status:'Pass'},
+    {date:'2024-09-05', type:'Installed', actor:'P. Das', notes:'Newly installed', failureType:'', status:'Pass'}
+  ],
+  /* left-bottom vendor performance (kept) */
+  vendorScores: [
+    {label:'Responsiveness', value:85},
+    {label:'Cost', value:78},
+    {label:'Durability', value:88},
+    {label:'Warranty & claims', value:68}
+  ],
+  /* center-right: frequent failure types (percent) */
+  failureTypes: [
+    {label:'Weld fracture', percent:42},
+    {label:'Abrasion', percent:28},
+    {label:'Plastic deformation', percent:18},
+    {label:'Loosening', percent:12}
+  ],
+
+  trend:{
+    months:['Apr 2025','May 2025','Jun 2025','Jul 2025','Aug 2025','Sep 2025'],
+    failures:[2,1,1,0,0,0],
+    inspections:[5,4,3,4,6,1]
+  },
+  kpi:{ availability:99.4, failureRatePerYear:0.6, avgInspectionDelayDays:3, aiAnomalyScore:0.2 }
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(baseKey);
+    if(!raw) return JSON.parse(JSON.stringify(defaultState));
+    return JSON.parse(raw);
+  }catch(e){
+    return JSON.parse(JSON.stringify(defaultState));
+  }
+}
+function saveState(s){ try{ localStorage.setItem(baseKey, JSON.stringify(s)); }catch(e){} }
+let S = loadState();
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+function daysLeftFromSupply(supply, months){
+  const d = new Date(supply); d.setMonth(d.getMonth() + Number(months));
+  return Math.ceil((d - new Date())/(1000*60*60*24));
+}
+
+/* ---------- render functions ---------- */
+function renderMeta(){
+  const m = S.meta;
+  $('partId').textContent = m.partId;
+  $('partType').textContent = m.partType;
+  $('vendor').textContent = m.vendor;
+  $('lot').textContent = m.lot;
+  $('supplyDate').textContent = m.supplyDate;
+  $('heatStamp').innerHTML = 'Heat stamp: <strong>' + m.heatStamp + '</strong>';
+  $('material').textContent = m.material;
+  $('materialGrade').textContent = m.materialGrade;
+  $('location').textContent = m.location;
+  $('lastSync').textContent = m.lastSync;
+  $('nextInspection').textContent = m.nextInspection;
+  $('warrantyText').textContent = m.warrantyMonths + ' months';
+  // per your request show 151 days left (green)
+  $('warrantyLeft').textContent = '151 days left';
+  $('warrantyLeft').style.color = 'var(--good)';
+
+  // KPIs (static)
+  $('k_avail').textContent = S.kpi.availability + '%';
+  $('k_fail').textContent = S.kpi.failureRatePerYear + '%';
+  $('k_delay').textContent = S.kpi.avgInspectionDelayDays + ' days';
+  $('k_ai').textContent = S.kpi.aiAnomalyScore + '/10';
+  $('modelConf').textContent = '9.4/10';
+  // no lastInspect element to set (removed by request)
+}
+
+function renderHistory(){
+  const root = $('historyList'); root.innerHTML = '';
+  S.history.forEach(h=>{
+    const div = document.createElement('div'); div.className='history-item';
+    const left = document.createElement('div');
+    left.innerHTML = `<div style="font-weight:800">${h.date} — ${h.actor}</div><div style="color:var(--muted);margin-top:6px">${h.notes}</div>`;
+    const right = document.createElement('div');
+    const s = document.createElement('span');
+    if(h.status==='Pass'){ s.textContent='Pass'; s.className='status-pass'; }
+    else if(h.status==='Minor'){ s.textContent='Minor'; s.className='status-minor'; }
+    else { s.textContent='Fail'; s.className='status-fail'; }
+    right.appendChild(s);
+    div.appendChild(left); div.appendChild(right);
+    root.appendChild(div);
+  });
+}
+
+/* left-bottom vendor performance: 4-category bar chart (unchanged) */
+function renderVendorPerf(){
+  const svg = $('vendorPerf'); svg.innerHTML = '';
+  const w = 360, pad = 16;
+  const maxVal = 100;
+  const barH = 22;
+  const leftX = 140;
+  S.vendorScores.forEach((it,i)=>{
+    const y = pad + i*(barH + 18);
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x',8); label.setAttribute('y', y+16); label.setAttribute('font-size',12); label.setAttribute('fill','#111');
+    label.textContent = it.label;
+    svg.appendChild(label);
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x', leftX); bg.setAttribute('y', y+2); bg.setAttribute('height', barH); bg.setAttribute('width', 180); bg.setAttribute('rx',10); bg.setAttribute('fill','#f1f0fb');
+    svg.appendChild(bg);
+    const bar = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bar.setAttribute('x', leftX); bar.setAttribute('y', y+2); bar.setAttribute('height', barH); bar.setAttribute('width', 0); bar.setAttribute('rx',10);
+    const colors = ['#60a5fa','#fbbf24','#34d399','#8b5cf6'];
+    bar.setAttribute('fill', colors[i % colors.length]);
+    svg.appendChild(bar);
+    const val = document.createElementNS('http://www.w3.org/2000/svg','text');
+    val.setAttribute('x', leftX + 6); val.setAttribute('y', y+16); val.setAttribute('font-size',11); val.setAttribute('fill','#fff');
+    val.textContent = '';
+    svg.appendChild(val);
+    setTimeout(()=> {
+      const target = Math.round((it.value / maxVal) * 170);
+      bar.setAttribute('width', target);
+      val.textContent = it.value;
+      val.setAttribute('x', leftX + Math.max(6, target - 36));
+    }, 120 * i);
+  });
+}
+
+/* center-right: FREQUENT FAILURE TYPES (percent horizontal bars) */
+function renderVendorBars(){
+  const svg = $('vendorBars'); if(!svg) return; svg.innerHTML = '';
+  const w = 240; const pad = 6;
+  const leftX = 92;
+  const colors = ['#ef4444','#f59e0b','#f97316','#ef9a9a'];
+  S.failureTypes.forEach((it,i)=>{
+    const y = pad + i*24;
+    const name = document.createElementNS('http://www.w3.org/2000/svg','text');
+    name.setAttribute('x',6); name.setAttribute('y', y+12); name.setAttribute('font-size',11); name.setAttribute('fill','#333');
+    name.textContent = it.label.length>12 ? it.label.slice(0,12)+'…' : it.label;
+    svg.appendChild(name);
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x', leftX); bg.setAttribute('y', y+2); bg.setAttribute('height',12); bg.setAttribute('width',120); bg.setAttribute('rx',6); bg.setAttribute('fill','#f3f2fb');
+    svg.appendChild(bg);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', leftX); rect.setAttribute('y', y+2); rect.setAttribute('height',12); rect.setAttribute('width',0); rect.setAttribute('rx',6); rect.setAttribute('fill',colors[i % colors.length]);
+    svg.appendChild(rect);
+    const pct = document.createElementNS('http://www.w3.org/2000/svg','text');
+    pct.setAttribute('x', leftX + 6); pct.setAttribute('y', y+12); pct.setAttribute('font-size',11); pct.setAttribute('fill','#fff'); pct.textContent = '';
+    svg.appendChild(pct);
+    // animate/assign
+    setTimeout(()=> {
+      const target = Math.round((it.percent / 100) * 110);
+      rect.setAttribute('width', target);
+      pct.textContent = it.percent + '%';
+      pct.setAttribute('x', leftX + Math.max(6, target - 28));
+    }, 80 * i);
+  });
+}
+
+/* static trend rendering */
+function renderTrend(){
+  const svg = $('trend'); svg.innerHTML = '';
+  const w = 520, h = 110, pad = 28;
+  const months = S.trend.months;
+  const dataMax = Math.max(...S.trend.failures, ...S.trend.inspections, 1);
+  const axis = document.createElementNS('http://www.w3.org/2000/svg','line');
+  axis.setAttribute('x1',pad); axis.setAttribute('y1',h-pad); axis.setAttribute('x2',w-pad); axis.setAttribute('y2',h-pad); axis.setAttribute('stroke','#efeaff'); axis.setAttribute('stroke-width','2');
+  svg.appendChild(axis);
+  const stepX = (w - 2*pad) / (months.length - 1 || 1);
+  function pathFor(vals){
+    return vals.map((v,i)=>{
+      const x = pad + i * stepX;
+      const y = pad + (1 - (v / dataMax)) * (h - 2*pad);
+      return (i===0? 'M ' : 'L ') + x + ' ' + y;
+    }).join(' ');
+  }
+  const pIns = document.createElementNS('http://www.w3.org/2000/svg','path');
+  pIns.setAttribute('d', pathFor(S.trend.inspections)); pIns.setAttribute('fill','none'); pIns.setAttribute('stroke','#6d28d9'); pIns.setAttribute('stroke-width','2.5'); svg.appendChild(pIns);
+  const pFail = document.createElementNS('http://www.w3.org/2000/svg','path');
+  pFail.setAttribute('d', pathFor(S.trend.failures)); pFail.setAttribute('fill','none'); pFail.setAttribute('stroke','#ef4444'); pFail.setAttribute('stroke-width','2.5'); svg.appendChild(pFail);
+  months.forEach((m,i)=>{
+    const x = pad + i * stepX;
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',x); t.setAttribute('y', h-6); t.setAttribute('font-size',10); t.setAttribute('fill','#6b6b7a'); t.setAttribute('text-anchor','middle');
+    t.textContent = m.split(' ')[0];
+    svg.appendChild(t);
+  });
+  // markers (inspections/failures)
+  S.trend.inspections.forEach((v,i)=>{
+    const x = pad + i * stepX; const y = pad + (1 - (v / dataMax)) * (h - 2*pad);
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',2.6); c.setAttribute('fill','#6d28d9'); svg.appendChild(c);
+  });
+  S.trend.failures.forEach((v,i)=>{
+    const x = pad + i * stepX; const y = pad + (1 - (v / dataMax)) * (h - 2*pad);
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',2.6); c.setAttribute('fill','#ef4444'); svg.appendChild(c);
+  });
+}
+
+/* gauge (keeps graphic but does NOT display numeric confidence text) */
+function renderGauge(){
+  const svg = document.getElementById('gauge');
+  if(!svg) return;
+  svg.innerHTML = '';
+  const conf = Math.max(0, Math.min(10, S.kpi.aiAnomalyScore));
+  const health = Math.max(0, Math.min(1, (10-conf)/10));
+  const startAngle = -Math.PI; const endAngle = 0;
+  const cx = 42, cy = 44, r = 28;
+  const bx1 = cx + r * Math.cos(startAngle), by1 = cy + r * Math.sin(startAngle);
+  const bx2 = cx + r * Math.cos(endAngle), by2 = cy + r * Math.sin(endAngle);
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','path');
+  bg.setAttribute('d', `M ${bx1} ${by1} A ${r} ${r} 0 0 1 ${bx2} ${by2}`); bg.setAttribute('stroke','#f0eefc'); bg.setAttribute('stroke-width','6'); bg.setAttribute('fill','none'); svg.appendChild(bg);
+  const ang = startAngle + (endAngle - startAngle) * health;
+  const fx = cx + r * Math.cos(ang), fy = cy + r * Math.sin(ang);
+  const large = health > 0.5 ? 1 : 0;
+  const fg = document.createElementNS('http://www.w3.org/2000/svg','path');
+  fg.setAttribute('d', `M ${bx1} ${by1} A ${r} ${r} 0 ${large} 1 ${fx} ${fy}`); fg.setAttribute('stroke', health > 0.66 ? '#10b981' : (health > 0.33 ? '#f59e0b' : '#ef4444')); fg.setAttribute('stroke-width','6'); fg.setAttribute('fill','none'); svg.appendChild(fg);
+  const t = document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x',cx); t.setAttribute('y',cy-4); t.setAttribute('text-anchor','middle'); t.setAttribute('font-size',11); t.setAttribute('fill','#333'); t.textContent='AI'; svg.appendChild(t);
+  // Note: numeric confidence text intentionally NOT appended (per your request)
+}
+
+/* ---------- render all ---------- */
+function renderAll(){
+  renderMeta();
+  renderHistory();
+  renderVendorPerf();
+  renderVendorBars();
+  renderTrend();
+  renderGauge();
+}
+
+/* ---------- add inspection (keeps KPIs static) ---------- */
+function addInspectionEntry(name, status, failureType, notes){
+  const d = new Date().toISOString().slice(0,10);
+  const entry = {date:d,type:'Inspection',actor:name||'Anonymous',notes:notes||status,failureType:failureType||'', status:status};
+  S.history.unshift(entry);
+  if(status==='Fail' && failureType){
+    S.failureTypes[0].percent = Math.min(100, S.failureTypes[0].percent + 1); // small demo tweak (visual)
+  }
+  S.history = S.history.slice(0,200);
+  saveState(S);
+  renderAll();
+}
+
+/* ---------- UI wiring ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderAll();
+
+  document.getElementById('saveInspect').addEventListener('click', ()=>{
+    const name = document.getElementById('inspectorName').value.trim() || 'Anonymous';
+    const status = document.getElementById('inspectorStatus').value;
+    const failureType = document.getElementById('failureType').value;
+    const notes = document.getElementById('inspectorNotes').value.trim();
+    addInspectionEntry(name, status, failureType, notes);
+    document.getElementById('inspectorNotes').value=''; document.getElementById('failureType').value='';
+    alert('Inspection updated locally (demo).');
+  });
+
+  document.getElementById('previewInspect').addEventListener('click', ()=>{
+    const name = document.getElementById('inspectorName').value.trim() || 'Anonymous';
+    const status = document.getElementById('inspectorStatus').value;
+    const failureType = document.getElementById('failureType').value || '(none)';
+    const notes = document.getElementById('inspectorNotes').value.trim() || '(no notes)';
+    alert(`Preview:\n\nInspector: ${name}\nStatus: ${status}\nFailure: ${failureType}\nNotes: ${notes}`);
+  });
+
+  document.getElementById('detailsBtn').addEventListener('click', ()=>{
+    const meta = S.meta;
+    const html = `<div><strong>Part:</strong> ${meta.partId} — ${meta.partType}</div>
+      <div style="margin-top:8px"><strong>Vendor:</strong> ${meta.vendor} (${meta.vendorPrefix})</div>
+      <div style="margin-top:8px"><strong>Lot:</strong> ${meta.lot}</div>
+      <div style="margin-top:8px"><strong>Material:</strong> ${meta.material}</div>
+      <div style="margin-top:8px"><strong>Supply:</strong> ${meta.supplyDate} — Heat: ${meta.heatStamp}</div>
+      <div style="margin-top:12px"><strong>Recent history:</strong><ul>${S.history.slice(0,6).map(h=>`<li>${h.date} — ${h.actor} — ${h.notes} ${h.status?('— '+h.status):''}</li>`).join('')}</ul></div>`;
+    document.getElementById('detailedContent').innerHTML = html;
+    document.getElementById('modal').style.display = 'flex';
+  });
+  document.getElementById('closeModal').addEventListener('click', ()=> document.getElementById('modal').style.display = 'none');
+
+  document.getElementById('flagWarrantyBtn').addEventListener('click', ()=>{
+    const reason = prompt('Reason for warranty flag:');
+    if(reason){ S.history.unshift({date:new Date().toISOString().slice(0,10), type:'WarrantyFlag', actor:'Inspector', notes:reason, failureType:'', status:'Minor'}); saveState(S); renderAll(); alert('Warranty flag recorded (demo).'); }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    const content = `Traceability report — ${S.meta.partId}\n\nRecent history:\n` + S.history.map(h=>`${h.date} - ${h.type} - ${h.actor} - ${h.notes} ${h.status? ' - ' + h.status : ''}`).join('\n');
+    const blob = new Blob([content],{type:'text/plain'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${S.meta.partId}_trace.txt`; a.click(); URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('markReplacedBtn').addEventListener('click', ()=>{
+    if(confirm('Mark part replaced (demo)?')){ S.history.unshift({date:new Date().toISOString().slice(0,10), type:'Replaced', actor:'Maintenance', notes:'Marked replaced', failureType:'', status:'Pass'}); saveState(S); renderAll(); alert('Marked replaced (demo).'); }
+  });
+
+  document.getElementById('backBtn').addEventListener('click', ()=> alert('Back pressed (demo)'));
+});
+
+/* persist periodically */
+setInterval(()=> saveState(S), 8000);
+window.addEventListener('beforeunload', ()=> saveState(S));
+</script>
+</body>
+</html>
